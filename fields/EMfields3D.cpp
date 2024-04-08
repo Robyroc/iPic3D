@@ -1525,9 +1525,9 @@ void EMfields3D::addToSpeciesMoments(const Moments & in, int is) {
   assert_eq(in.get_nx(), nxn);
   assert_eq(in.get_ny(), nyn);
   assert_eq(in.get_nz(), nzn);
-  for (register int i = 0; i < nxn; i++) {
-    for (register int j = 0; j < nyn; j++)
-      for (register int k = 0; k < nzn; k++) {
+  for (int i = 0; i < nxn; i++) {
+    for (int j = 0; j < nyn; j++)
+      for (int k = 0; k < nzn; k++) {
         rhons[is][i][j][k] += in.get_rho(i, j, k);
         Jxs[is][i][j][k] += in.get_Jx(i, j, k);
         Jys[is][i][j][k] += in.get_Jy(i, j, k);
@@ -1638,9 +1638,9 @@ void EMfields3D::addPzz(double weight[][2][2], int X, int Y, int Z, int is) {
 
 /*! set to 0 all the densities fields */
 void EMfields3D::setZeroDensities() {
-  for (register int i = 0; i < nxn; i++)
-    for (register int j = 0; j < nyn; j++)
-      for (register int k = 0; k < nzn; k++) {
+  for (int i = 0; i < nxn; i++)
+    for (int j = 0; j < nyn; j++)
+      for (int k = 0; k < nzn; k++) {
         Jx  [i][j][k] = 0.0;
         Jxh [i][j][k] = 0.0;
         Jy  [i][j][k] = 0.0;
@@ -1649,16 +1649,16 @@ void EMfields3D::setZeroDensities() {
         Jzh [i][j][k] = 0.0;
         rhon[i][j][k] = 0.0;
       }
-  for (register int i = 0; i < nxc; i++)
-    for (register int j = 0; j < nyc; j++)
-      for (register int k = 0; k < nzc; k++) {
+  for (int i = 0; i < nxc; i++)
+    for (int j = 0; j < nyc; j++)
+      for (int k = 0; k < nzc; k++) {
         rhoc[i][j][k] = 0.0;
         rhoh[i][j][k] = 0.0;
       }
-  for (register int kk = 0; kk < ns; kk++)
-    for (register int i = 0; i < nxn; i++)
-      for (register int j = 0; j < nyn; j++)
-        for (register int k = 0; k < nzn; k++) {
+  for (int kk = 0; kk < ns; kk++)
+    for (int i = 0; i < nxn; i++)
+      for (int j = 0; j < nyn; j++)
+        for (int k = 0; k < nzn; k++) {
           rhons[kk][i][j][k] = 0.0;
           Jxs  [kk][i][j][k] = 0.0;
           Jys  [kk][i][j][k] = 0.0;
@@ -1678,18 +1678,18 @@ void EMfields3D::setZeroDensities() {
 /*!SPECIES: Sum the charge density of different species on NODES */
 void EMfields3D::sumOverSpecies(VirtualTopology3D * vct) {
   for (int is = 0; is < ns; is++)
-    for (register int i = 0; i < nxn; i++)
-      for (register int j = 0; j < nyn; j++)
-        for (register int k = 0; k < nzn; k++)
+    for (int i = 0; i < nxn; i++)
+      for (int j = 0; j < nyn; j++)
+        for (int k = 0; k < nzn; k++)
           rhon[i][j][k] += rhons[is][i][j][k];
 }
 
 /*!SPECIES: Sum current density for different species */
 void EMfields3D::sumOverSpeciesJ() {
   for (int is = 0; is < ns; is++)
-    for (register int i = 0; i < nxn; i++)
-      for (register int j = 0; j < nyn; j++)
-        for (register int k = 0; k < nzn; k++) {
+    for (int i = 0; i < nxn; i++)
+      for (int j = 0; j < nyn; j++)
+        for (int k = 0; k < nzn; k++) {
           Jx[i][j][k] += Jxs[is][i][j][k];
           Jy[i][j][k] += Jys[is][i][j][k];
           Jz[i][j][k] += Jzs[is][i][j][k];

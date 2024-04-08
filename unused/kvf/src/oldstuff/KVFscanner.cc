@@ -612,7 +612,7 @@ YY_DECL
 	{
 	register yy_state_type yy_current_state;
 	register char *yy_cp = NULL, *yy_bp = NULL;
-	register int yy_act;
+	int yy_act;
 
 #line 105 "KVFscanner.l"
 
@@ -1050,7 +1050,7 @@ int yyFlexLexer::yy_get_next_buffer()
 	{
 	register char *dest = yy_current_buffer->yy_ch_buf;
 	register char *source = yytext_ptr;
-	register int number_to_move, i;
+	int number_to_move, i;
 	int ret_val;
 
 	if ( yy_c_buf_p > &yy_current_buffer->yy_ch_buf[yy_n_chars + 1] )
@@ -1214,7 +1214,7 @@ yy_state_type yyFlexLexer::yy_get_previous_state()
 
 yy_state_type yyFlexLexer::yy_try_NUL_trans( yy_state_type yy_current_state )
 	{
-	register int yy_is_jam;
+	int yy_is_jam;
 	register char *yy_cp = yy_c_buf_p;
 
 	register YY_CHAR yy_c = 1;
@@ -1246,7 +1246,7 @@ void yyFlexLexer::yyunput( int c, register char* yy_bp )
 	if ( yy_cp < yy_current_buffer->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		register int number_to_move = yy_n_chars + 2;
+		int number_to_move = yy_n_chars + 2;
 		register char *dest = &yy_current_buffer->yy_ch_buf[
 					yy_current_buffer->yy_buf_size + 2];
 		register char *source =
@@ -1395,7 +1395,7 @@ YY_BUFFER_STATE yyFlexLexer::yy_create_buffer( istream* file, int size )
 
 	b->yy_buf_size = size;
 
-	/* yy_ch_buf has to be 2 characters longer than the size given because
+	/* yy_ch_buf has to be 2 characters longr than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
 	b->yy_ch_buf = (char *) yy_flex_alloc( b->yy_buf_size + 2 );
@@ -1560,7 +1560,7 @@ yyconst char *s2;
 int n;
 #endif
 	{
-	register int i;
+	int i;
 	for ( i = 0; i < n; ++i )
 		s1[i] = s2[i];
 	}
@@ -1574,7 +1574,7 @@ static int yy_flex_strlen( s )
 yyconst char *s;
 #endif
 	{
-	register int n;
+	int n;
 	for ( n = 0; s[n]; ++n )
 		;
 

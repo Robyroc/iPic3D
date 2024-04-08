@@ -373,11 +373,9 @@ bool c_Solver::ParticlesMover() {
   for (int i = 0; i < ns; i++)  // move each species
   {
 	  if(cylindrical){
-		  // #pragma omp task inout(part[i]) in(grid) target_device(booster)
 		  mem_avail = part[i].mover_PC_sub_cyl(grid, vct, EMf); // use the Predictor Corrector scheme
 	  }
 	  else{
-		  // #pragma omp task inout(part[i]) in(grid) target_device(booster)
 		  //mem_avail = part[i].mover_PC_sub(grid, vct, EMf); // use the Predictor Corrector scheme
 
 		  if(col->getCase()=="GEMRelativity" || col->getCase()=="Relativistic")

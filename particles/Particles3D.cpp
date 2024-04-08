@@ -104,11 +104,11 @@ void Particles3D::constantVelocity(double vel, int dim, Grid * grid, Field * EMf
         u[i] = vel, v[i] = 0.0, w[i] = 0.0;
       break;
     case 1:
-      for (register long long i = 0; i < nop; i++)
+      for (long long i = 0; i < nop; i++)
         u[i] = 0.0, v[i] = vel, w[i] = 0.0;
       break;
     case 2:
-      for (register long long i = 0; i < nop; i++)
+      for (long long i = 0; i < nop; i++)
         u[i] = 0.0, v[i] = 0.0, w[i] = vel;
       break;
 
@@ -1071,7 +1071,7 @@ void Particles3D::AddPerturbationJ(double deltaBoB, double kx, double ky, double
   jx_mod *= alpha;
   jy_mod *= alpha;
   jz_mod *= alpha;
-  for (register long long i = 0; i < nop; i++) {
+  for (long long i = 0; i < nop; i++) {
     u[i] += jx_mod / q[i] / npcel / invVOL * cos(kx * x[i] + ky * y[i] + jx_phase);
     v[i] += jy_mod / q[i] / npcel / invVOL * cos(kx * x[i] + ky * y[i] + jy_phase);
     w[i] += jz_mod / q[i] / npcel / invVOL * cos(kx * x[i] + ky * y[i] + jz_phase);
@@ -1424,8 +1424,6 @@ int Particles3D::mover_PC(Grid * grid, VirtualTopology3D * vct, Field * EMf) {
 	// don't bother trying to push any particles simultaneously;
 	// MIC already does vectorization automatically, and trying
 	// to do it by hand only hurts performance.
-#pragma omp parallel for
-#pragma simd                    // this just slows things down (why?)
 	for (long long rest = 0; rest < nop; rest++) {
 		// copy the particle
 		double xp = x[rest];
@@ -1648,8 +1646,6 @@ int Particles3D::mover_PC_sub(Grid * grid, VirtualTopology3D * vct, Field * EMf)
   // don't bother trying to push any particles simultaneously;
   // MIC already does vectorization automatically, and trying
   // to do it by hand only hurts performance.
-//#pragma omp parallel for
-//#pragma simd                    // this just slows things down (why?)
 
   for (long long rest = 0; rest < nop; rest++) {
     // copy the particle
@@ -1783,8 +1779,6 @@ int Particles3D::mover_PC_sub_cyl(Grid * grid, VirtualTopology3D * vct, Field * 
   // don't bother trying to push any particles simultaneously;
   // MIC already does vectorization automatically, and trying
   // to do it by hand only hurts performance.
-//#pragma omp parallel for
-//#pragma simd                    // this just slows things down (why?)
 
   for (long long rest = 0; rest < nop; rest++) {
     // copy the particle
@@ -1986,8 +1980,6 @@ int Particles3D::mover_relativistic(Grid * grid, VirtualTopology3D * vct, Field 
 	  // don't bother trying to push any particles simultaneously;
 	  // MIC already does vectorization automatically, and trying
 	  // to do it by hand only hurts performance.
-	//#pragma omp parallel for
-	//#pragma simd                    // this just slows things down (why?)
 
 	  for (long long rest = 0; rest < nop; rest++) {
 	    // copy the particle
@@ -2154,8 +2146,6 @@ int Particles3D::mover_relativistic_celeste(Grid * grid, VirtualTopology3D * vct
 	  // don't bother trying to push any particles simultaneously;
 	  // MIC already does vectorization automatically, and trying
 	  // to do it by hand only hurts performance.
-	//#pragma omp parallel for
-	//#pragma simd                    // this just slows things down (why?)
 
 	  for (long long rest = 0; rest < nop; rest++) {
 	    // copy the particle
@@ -2864,7 +2854,7 @@ void Particles3D::interpP2G_onlyP(Field * EMf, Grid * grid, VirtualTopology3D * 
   double weight[2][2][2];
   double temp[2][2][2];
   int ix, iy, iz, temp1, temp2, temp3;
-  for (register long long i = 0; i < nop; i++) {
+  for (long long i = 0; i < nop; i++) {
     ix = 2 + int (floor((x[i] - grid->getXstart()) / grid->getDX()));
     iy = 2 + int (floor((y[i] - grid->getYstart()) / grid->getDY()));
     iz = 2 + int (floor((z[i] - grid->getZstart()) / grid->getDZ()));
@@ -2902,7 +2892,7 @@ void Particles3D::interpP2G_notP(Field * EMf, Grid * grid, VirtualTopology3D * v
   double temp[2][2][2];
   double ep;
   int ix, iy, iz, temp2, temp1, temp3;
-  for (register long long i = 0; i < nop; i++) {
+  for (long long i = 0; i < nop; i++) {
     ix = 2 + int (floor((x[i] - grid->getXstart()) / grid->getDX()));
     iy = 2 + int (floor((y[i] - grid->getYstart()) / grid->getDY()));
     iz = 2 + int (floor((z[i] - grid->getZstart()) / grid->getDZ()));
@@ -2971,10 +2961,10 @@ void Particles3D::linear_perturbation(double deltaBoB, double kx, double ky, dou
 
 
   // find the maximum value of f=1+delta_f/f0
-  for (register double vpar = -2 * uth; vpar <= 2 * uth; vpar += 0.0005)
-    for (register double vperp = 1e-10; vperp <= 2 * vth; vperp += 0.0005)
-      for (register double X = xstart; X <= xend; X += 2 * grid->getDX())
-        for (register double Y = ystart; Y <= yend; Y += 2 * grid->getDY()) {
+  for (double vpar = -2 * uth; vpar <= 2 * uth; vpar += 0.0005)
+    for (double vperp = 1e-10; vperp <= 2 * vth; vperp += 0.0005)
+      for (double X = xstart; X <= xend; X += 2 * grid->getDX())
+        for (double Y = ystart; Y <= yend; Y += 2 * grid->getDY()) {
           value1 = 1 + delta_f(vpar, vperp, 0.0, X, Y, kx, ky, omega_r, omega_i, Ex_mod, Ex_phase, Ey_mod, Ey_phase, Ez_mod, Ez_phase, angle, EMf) / f0(vpar, vperp);
 
           if (value1 > max_value)
@@ -3072,7 +3062,7 @@ double Particles3D::delta_f(double u, double v, double w, double x, double y, do
   /** for compilation issues comment this part: PUT in the math stuff */
   // calc_bessel_Jn_seq(lambda, lmax, bessel_Jn_array, bessel_Jn_prime_array);
   factor = (kpar * vperp / omega * df0_dvpar(vpar, vperp) + (1.0 - (kpar * vpar / omega)) * df0_dvperp(vpar, vperp));
-  for (register int l = -lmax; l < 0; l++) {  // negative index
+  for (int l = -lmax; l < 0; l++) {  // negative index
     a1[l + lmax] = factor / lambda * pow(-1.0, -l) * bessel_Jn_array[-l];
     a1[l + lmax] *= (double) l;
     a2[l + lmax] = factor * I * 0.5 * pow(-1.0, -l) * (bessel_Jn_array[-l - 1] - bessel_Jn_array[-l + 1]);
@@ -3081,7 +3071,7 @@ double Particles3D::delta_f(double u, double v, double w, double x, double y, do
     a3[l + lmax] += df0_dvpar(vpar, vperp) * pow(-1.0, -l) * bessel_Jn_array[-l];
   }
 
-  for (register int l = 0; l < lmax + 1; l++) { // positive index
+  for (int l = 0; l < lmax + 1; l++) { // positive index
     a1[l + lmax] = factor / lambda * bessel_Jn_array[l];
     a1[l + lmax] *= (double) l;
     a2[l + lmax] = factor * I * bessel_Jn_prime_array[l];
@@ -3091,7 +3081,7 @@ double Particles3D::delta_f(double u, double v, double w, double x, double y, do
   }
 
   deltaf = (0.0, 0.0);
-  for (register int l = -lmax; l < lmax + 1; l++) {
+  for (int l = -lmax; l < lmax + 1; l++) {
     deltaf += (a3[l + lmax] * Ex_mod * exp(I * Ex_phase) + a1[l + lmax] * Ey_mod * exp(I * Ey_phase) + a2[l + lmax] * Ez_mod * exp(I * Ez_phase)) / (kpar * vpar + l * om_c - omega) * exp(-I * phi * (double) l);
   }
   deltaf *= I * qom * exp(I * lambda * sin(phi)) * exp(I * (2 * M_PI * kx * x + 2 * M_PI * ky * y));
@@ -3122,7 +3112,7 @@ double Particles3D::f0(double vpar, double vperp) {
 
 void Particles3D::RotatePlaneXY(double theta) {
   double temp, temp2;
-  for (register long long s = 0; s < nop; s++) {
+  for (long long s = 0; s < nop; s++) {
     temp = u[s];
     temp2 = v[s];
     u[s] = temp * cos(theta) + v[s] * sin(theta);

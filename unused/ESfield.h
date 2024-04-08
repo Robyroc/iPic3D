@@ -249,11 +249,11 @@ inline ESfield3D::~ESfield3D(){
 }
 /** set to 0 all the densities fields */
 inline  void ESfield3D::setZeroDensities(){
-    for (register int i=0; i < nxn*nyn*nzn; i++)
+    for (int i=0; i < nxn*nyn*nzn; i++)
         ***rhon++ = 0.0;
-    for (register int i=0; i < nxc*nyc*nzc; i++)
+    for (int i=0; i < nxc*nyc*nzc; i++)
         ***rhoc++ = 0.0;
-    for (register int i=0; i < nxn*nyn*nzn*ns; i++){
+    for (int i=0; i < nxn*nyn*nzn*ns; i++){
         ****rhons++ = 0.0;                      
 
     }
