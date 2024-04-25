@@ -2,8 +2,8 @@
 # 2 Species
 
 #  %%%%%%%%%%%%%%%%%%% Input/Output flags %%%%%%%%%%%%%%%%%%
-SaveDirName    = strong_scaling/1024   # Output directory
-RestartDirName = strong_scaling/1024   # Restart directory (for WriteMethod=default)
+SaveDirName    = strong_scaling/1   # Output directory
+RestartDirName = strong_scaling/1   # Restart directory (for WriteMethod=default)
 
 #  %%%%%%%%%%%%%%%%%%% Input/Output flags %%%%%%%%%%%%%%%%%%
 
@@ -28,10 +28,10 @@ B1z = 0.000
 delta = 0.5
 
 #  %%%%%%%%%%%%%%%%%%% TIME %%%%%%%%%%%%%%%%%%
-dt = 0.25 #.0625 #0.125               # dt = time step  
-ncycles = 10           # cycles
-th = 1.0               # th =   decentering parameter
-c = 1.0                # c = light speed 
+dt = 0.05               # dt = time step  
+ncycles = 10            # cycles
+th = 1.0                # th =   decentering parameter
+c = 1.0                 # c = light speed 
 
 #  %%%%%%%%%%%%%%%%%%% SMOOTH %%%%%%%%%%%%%%%%%%
 Smooth = 0.5           # Smoothing value (5-points stencil) Value =1.0 menas no-smoothing
@@ -50,17 +50,17 @@ L_square =   12.
 L_outer  =    0. 
 
 PartInj = 0.0
-CoilD = 0.0	       #magnetic coil diameter -- Proposed WB8 simulation dimensions. 
-CoilSpacing= 0.0      #spacing parameter for magnets 
+CoilD = 0.0	            #magnetic coil diameter -- Proposed WB8 simulation dimensions. 
+CoilSpacing= 0.0        #spacing parameter for magnets 
 
-nxc =  200              # nxc = number of cells - x direction        
-nyc =  200              # nyc = number of cells - y direction
-nzc =  10               # nzc = number of cells - z direction        
+nxc =  224              # nxc = number of cells - x direction        
+nyc =  224              # nyc = number of cells - y direction
+nzc =  14               # nzc = number of cells - z direction        
 
 # %%%%%%%%%%%%%%%%%% MPI TOPOLOGY %%%%%%%%%%%%%%%
-XLEN = 10               # Number of subdomains in the X direction
-YLEN = 10               # Number of subdomains in the Y direction
-ZLEN = 2                # Number of subdomains in the Z direction
+XLEN = 8               # Number of subdomains in the X direction
+YLEN = 7               # Number of subdomains in the Y direction
+ZLEN = 2               # Number of subdomains in the Z direction
 
 # %%%%%%%%%%%%%% PARTICLES %%%%%%%%%%%%%%%%%
 #    0 = electrons
@@ -73,9 +73,9 @@ rhoINIT         = 1.0	1.0	0.1 	0.1 # Initial density (make sure you are neutral)
 rhoINJECT       = 0.0	0.0	0.0 	0.0  # Injection density (make sure you are neutral)
 TrackParticleID = 0    0	0 	0    # TrackParticleID[species] = 1=true, 0=false 
 
-npcelx          = 20	20	20	20   # Particles per cell in X
-npcely          = 20	20	20	20   # Particles per cell in Y
-npcelz          = 20	20	20	20   # Particles per cell in Z
+npcelx          = 27	27	27	27   # Particles per cell in X
+npcely          = 27	27	27	27   # Particles per cell in Y
+npcelz          = 3	    3	3	3   # Particles per cell in Z
 NpMaxNpRatio    = 5.0                # Maximum number of particles allocated
 
 qom             = -256.0  1.0     -256.0  1.0   # Charge/mass ratio
@@ -130,13 +130,13 @@ PERIODICZ       = 1                  # In direction Z (1=true, 0=false)
 verbose                = 1        # Print to video results
 Vinj                   = 0.0      # Velocity of the injection from the wall
 CGtol                  = 1E-3     # CG solver stopping criterium tolerance
-GMREStol               = 1E-8     # GMRES solver stopping criterium tolerance
+GMREStol               = 1E-6     # GMRES solver stopping criterium tolerance
 NiterMover             = 3        # mover predictor corrector iteration
 FieldOutputCycle       = 10       # Output for field
 ParticlesOutputCycle   = 1000     # Output for particles if 1 it doesnt save particles data
 RestartOutputCycle     = 4000     # restart cycle
 DiagnosticsOutputCycle = 1        # Diagnostics cycle
-POISStol	       = 1E-6
+POISStol	           = 1E-6
 VirtualProbesOutputCycle = 1	  # Virtual probe output (0 =never)
-NiterGMRES 	       = 500
+NiterGMRES 	           = 500
 SymmetricParticles     = true

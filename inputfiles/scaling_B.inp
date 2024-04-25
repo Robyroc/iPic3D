@@ -31,9 +31,9 @@ B1z = 0.000
 delta = 0.5
 
 #  %%%%%%%%%%%%%%%%%%% TIME %%%%%%%%%%%%%%%%%%
-dt = 0.028             # dt = time step  
-ncycles = 10          # cycles
-th = 0.5               # th =   decentering parameter
+dt = 0.01              # dt = time step  
+ncycles = 10           # cycles
+th = 0.5               # th = decentering parameter
 c = 1.0                # c = light speed 
 
 #  %%%%%%%%%%%%%%%%%%% SMOOTH %%%%%%%%%%%%%%%%%%
@@ -52,14 +52,14 @@ L_square =   .1
 CoilD = 25.2	       #magnetic coil diameter -- Proposed WB8 simulation dimensions. 
 CoilSpacing= 40.0      #spacing parameter for magnets 
 
-nxc = 1024              # nxc = number of cells - x direction        
-nyc = 512               # nyc = number of cells - y direction
+nxc = 2240              # nxc = number of cells - x direction        
+nyc = 1120              # nyc = number of cells - y direction
 nzc =  1                # nzc = number of cells - z direction        
 
 # %%%%%%%%%%%%%%%%%% MPI TOPOLOGY %%%%%%%%%%%%%%%
-XLEN = 16              # Number of subdomains in the X direction
-YLEN = 8              # Number of subdomains in the Y direction
-ZLEN = 1              # Number of subdomains in the Z direction
+XLEN = 224              # Number of subdomains in the X direction
+YLEN = 64              # Number of subdomains in the Y direction
+ZLEN = 1               # Number of subdomains in the Z direction
 
 # %%%%%%%%%%%%%% PARTICLES %%%%%%%%%%%%%%%%%
 #    0 = electrons
@@ -72,8 +72,8 @@ rhoINIT         = 0.5  0.5  0.5  0.5 # Initial density (make sure you are neutra
 rhoINJECT       = 0.0  0.0  0.0  0.0 # Injection density (make sure you are neutral)
 TrackParticleID = 0    0     0    0  # TrackParticleID[species] = 1=true, 0=false 
 
-npcelx          = 20   20   20     20 # Particles per cell in X
-npcely          = 20   20   20     20 # Particles per cell in Y
+npcelx          = 23   23   23     23 # Particles per cell in X
+npcely          = 23   23   23     23 # Particles per cell in Y
 npcelz          = 1    1     1      1 # Particles per cell in Z
 NpMaxNpRatio    = 5.0       # Maximum number of particles allocated
 
@@ -167,7 +167,7 @@ PERIODICZ       = 1                  # In direction Z (1=true, 0=false)
 verbose                = 1        # Print to video results
 Vinj                   = 0.0      # Velocity of the injection from the wall
 CGtol                  = 1E-3     # CG solver stopping criterium tolerance
-GMREStol               = 1E-13    # GMRES solver stopping criterium tolerance
+GMREStol               = 1E-8     # GMRES solver stopping criterium tolerance
 NiterMover             = 3        # mover predictor corrector iteration
 FieldOutputCycle       = 5        # Output for field
 ParticlesOutputCycle   = 350      # Output for particles if 1 it doesnt save particles data
