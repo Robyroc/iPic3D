@@ -120,7 +120,9 @@ int c_Solver::Init(int argc, char **argv) {
   }
 
   #ifdef __PETSC_SOLVER__
-    // PETSc solver:
+    //! PETSc solver:
+    if (myrank==0)
+    	cout << "Field solver is using PETSc" << endl;
     petscSolver = new PetscSolver(EMf, grid, vct, col);
   #endif
 
@@ -149,7 +151,8 @@ int c_Solver::Init(int argc, char **argv) {
       // wave = new Planewave(col, EMf, grid, vct);
       // wave->Wave_Rotated(part); // Single Plane Wave
 
-    	cout << col->getCase() << endl;
+		if (myrank==0)
+    		cout << "Simulation case: " << col->getCase() << endl << endl;
 
       for (int i = 0; i < ns; i++)
         if      (col->getCase()=="ForceFree") part[i].force_free(grid,EMf,vct);
