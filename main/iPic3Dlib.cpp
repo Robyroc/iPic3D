@@ -82,7 +82,8 @@ int c_Solver::Init(int argc, char **argv) {
     ReadFieldsH5hut(ns, false, EMf, col, vct, grid);
 
   }
-  else {
+  else 
+  {
 
     /* --------------------------------------------------------- */
     /* If using 'default' IO initialize fields depending on case */
@@ -91,7 +92,8 @@ int c_Solver::Init(int argc, char **argv) {
     else if (col->getCase()=="ForceFree") EMf->initForceFree(vct,grid,col);
     else if (col->getCase()=="ForceFreeHump") EMf->initForceFreeWithGaussianHumpPerturbation(vct,grid,col);
     else if ((col->getCase()=="GEM") || (col->getCase()=="GEMRelativity"))  EMf->initGEM(vct, grid,col);
-    else if (col->getCase()=="KAWTurbulencePert") {
+    else if (col->getCase()=="KAWTurbulencePert") 
+    {
       double mime = fabs(col->getQOM(0)/col->getQOM(1));
       double TiTe = pow(col->getUth(1)/col->getUth(0), 2.0)*mime;
       EMf->initKAWTurbulencePert(vct, grid, col, mime, TiTe);
@@ -108,21 +110,24 @@ int c_Solver::Init(int argc, char **argv) {
     else if (col->getCase()=="FluxRope")  EMf->initFluxRope(vct,grid,col);
     else if (col->getCase()=="GEMNoVelShear")  EMf->initHarrisNoVelShear(vct, grid,col);
     else if (col->getCase()=="Relativistic")  EMf->init(vct, grid, col);
-    else {
-      if (myrank==0) {
+    else 
+    {
+      if (myrank==0) 
+      {
         cout << " =========================================================== " << endl;
         cout << " WARNING: The case '" << col->getCase() << "' was not recognized. " << endl;
         cout << "          Runing simulation with the default initialization. " << endl;
         cout << " =========================================================== " << endl;
       }
-      EMf->init(vct,grid,col);
+      
+      EMf->init(vct, grid, col);
     }
   }
 
   #ifdef __PETSC_SOLVER__
     //! PETSc solver:
     if (myrank==0)
-    	cout << "Field solver is using PETSc" << endl;
+    	cout << endl << "Field solver is using PETSc" << endl;
     petscSolver = new PetscSolver(EMf, grid, vct, col);
   #endif
 
@@ -384,6 +389,7 @@ bool c_Solver::ParticlesMover() {
 		  if(col->getCase()=="GEMRelativity" || col->getCase()=="Relativistic")
 			  mem_avail = part[i].mover_relativistic(grid, vct, EMf);
 		  else
+        // cout << "Predictor--Corrector scheme" << endl; 
 			  mem_avail = part[i].mover_PC(grid, vct, EMf); // use the Predictor Corrector scheme
 
 	  }

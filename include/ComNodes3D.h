@@ -25,39 +25,41 @@ void communicateNode(int nx, int ny, int nz, double ***vector, VirtualTopology3D
 void communicateNodeBC(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
 /** communicate ghost cells (FOR NODES) with particles BC*/
+
+//! Not used
 void communicateNodeBC_P(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
 /** SPECIES: communicate ghost cells */
 void communicateNode(int nx, int ny, int nz, double ****vector, int ns, VirtualTopology3D * vct);
 
-// PARTICLES
-/** SPECIES: communicate ghost cells */
+//! PARTICLES
+//! SPECIES: communicate ghost cells !//
 void communicateNode_P(int nx, int ny, int nz, double ****vector, int ns, VirtualTopology3D * vct);
 
 // 
 /** communicate ghost cells (FOR CENTERS) */
 void communicateCenter(int nx, int ny, int nz, double ***vector, VirtualTopology3D * vct);
 
-/** communicate ghost cells (FOR CENTERS) with BOX stencil*/
+//? communicate ghost cells (FOR CENTERS) with BOX stencil -- used in communicateCenterBoxStencilBC ?//
 void communicateCenterBoxStencilBC(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
-// particles
-/** communicate ghost cells (FOR CENTERS) with BOX stencil*/
+//! Particles
+//? communicate ghost cells (FOR CENTERS) with BOX stencil -- used in EMfields3D::smooth ?//
 void communicateCenterBoxStencilBC_P(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
-// 
-
-void communicateNodeBoxStencilBC(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
-
+//? used in EMfields3D::smooth ?//
 void communicateNodeBoxStencilBC_P(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
-/** SPECIES: communicate ghost cells */
+//? used in EMfields3D::smoothE ?//
+void communicateNodeBoxStencilBC(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
+
+//! SPECIES: communicate ghost cells !//
 void communicateCenter(int nx, int ny, int nz, double ****vector, int ns, VirtualTopology3D * vct);
 
-// /////////// communication + BC ////////////////////////////
+//? /////////// communication + BC ////////////////////////// ?//
 void communicateCenterBC(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
-// /////////// communication + BC ////////////////////////////
+//? /////////// communication + BC ////////////////////////// ?//
 void communicateCenterBC_P(int nx, int ny, int nz, double ***vector, int bcFaceXright, int bcFaceXleft, int bcFaceYright, int bcFaceYleft, int bcFaceZright, int bcFaceZleft, VirtualTopology3D * vct);
 
 #endif
