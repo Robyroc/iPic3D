@@ -56,7 +56,7 @@ nzc =  14               # nzc = number of cells - z direction
 
 # %%%%%%%%%%%%%%%%%% MPI TOPOLOGY %%%%%%%%%%%%%%%
 XLEN = 128               # Number of subdomains in the X direction
-YLEN = 56               # Number of subdomains in the Y direction
+YLEN = 128               # Number of subdomains in the Y direction
 ZLEN = 2                # Number of subdomains in the Z direction
 
 # %%%%%%%%%%%%%% PARTICLES %%%%%%%%%%%%%%%%%

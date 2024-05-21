@@ -56,8 +56,8 @@ nyc =  560              # nyc = number of cells - y direction
 nzc =  1                # nzc = number of cells - z direction        
 
 # %%%%%%%%%%%%%%%%%% MPI TOPOLOGY %%%%%%%%%%%%%%%
-XLEN = 224              # Number of subdomains in the X direction
-YLEN = 64               # Number of subdomains in the Y direction
+XLEN = 112             # Number of subdomains in the X direction
+YLEN = 32               # Number of subdomains in the Y direction
 ZLEN = 1                # Number of subdomains in the Z direction
 
 # %%%%%%%%%%%%%% PARTICLES %%%%%%%%%%%%%%%%%
@@ -71,8 +71,8 @@ rhoINIT         = 0.5  0.5  0.5  0.5    # Initial density (make sure you are neu
 rhoINJECT       = 0.0  0.0  0.0  0.0    # Injection density (make sure you are neutral)
 TrackParticleID = 0    0     0    0     # TrackParticleID[species] = 1=true, 0=false 
 
-npcelx          = 200   200   200   200     # Particles per cell in X
-npcely          = 200   200   200   200     # Particles per cell in Y
+npcelx          = 400   400   400   400     # Particles per cell in X
+npcely          = 400   400   400   400     # Particles per cell in Y
 npcelz          = 1    1     1      1       # Particles per cell in Z
 NpMaxNpRatio    = 5.0                       # Maximum number of particles allocated
 
@@ -103,7 +103,7 @@ TP_y_center =   37.5  37.5     # OPTIONAL (default y_center) center of the injec
 TP_z_center =   0.05  0.05     # OPTIONAL (default z_center) center of the injector - z direction   
 TP_L_square =   14.4  14.4     # OPTIONAL (default L_square) diameter of the injector
 
-TP_rhoINIT         =    0.2     0.2  # Initial density (make sure you are neutral)
+TP_rhoINIT         =    0.2     0.2       # Initial density (make sure you are neutral)
 
 TP_npcelx          =    1      1          # Particles per cell in X
 TP_npcely          =    1      1          # Particles per cell in Y
