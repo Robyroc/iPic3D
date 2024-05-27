@@ -1,0 +1,1 @@
+cmake -DHDF5_ROOT=/home/roberto/Documents/E4/hdf5-1.10.6/install/ -DMPI_C_COMPILER=/home/roberto/Documents/mpi/dev_env/ompi/install/bin/mpicc -DMPI_CXX_COMPILER=/home/roberto/Documents/mpi/dev_env/ompi/install/bin/mpicxx ..

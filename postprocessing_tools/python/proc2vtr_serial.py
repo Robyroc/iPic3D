@@ -54,7 +54,7 @@ def writePVD(pvd_name, list_pvtr, list_cycle):
     collection = pvd.createElementNS("VTK", "Collection")                  
     pvd_root.appendChild(collection)                                       
 
-    for i in xrange(len(list_pvtr)):
+    for i in range(len(list_pvtr)):
         dataSet = pvd.createElementNS("VTK", "DataSet")
         dataSet.setAttribute("timestep", str(list_cycle[i]))
         dataSet.setAttribute("group", "")
@@ -68,7 +68,7 @@ def writePVD(pvd_name, list_pvtr, list_cycle):
         pvd.writexml(output_pvd_id, newl='\n')                                 
         output_pvd_id.close()
     except:
-        print 'Error writing PVD file: ', pvd_name
+        print('Error writing PVD file: ', pvd_name)
 #end writePVD
 
 
@@ -99,7 +99,7 @@ def writePVTR(pvtr_name, cycle, vtr_prefix, scalar_fields, vector_fields, Nxc, N
     pvtr_root.appendChild(grid)                                                                                          
 
     coordinate = pvtr.createElementNS("VTK", "PCoordinates")                                                             
-    for k in xrange(3):                                                                                    
+    for k in range(3):                                                                                    
         data_array = pvtr.createElementNS("VTK", "PDataArray")                                                           
         data_array.setAttribute("type", "Float32")                                                                        
         data_array.setAttribute("format", "Appended")                                                                     
@@ -125,7 +125,7 @@ def writePVTR(pvtr_name, cycle, vtr_prefix, scalar_fields, vector_fields, Nxc, N
     #end for
     grid.appendChild(p_data)
 
-    for i in xrange(numproc):
+    for i in range(numproc):
         vtr_name = vtr_prefix + repr(cycle).rjust(8,"0") + "-" + repr(i) + ".vtr"
         piece = pvtr.createElementNS("VTK", "Piece")
         piece.setAttribute("Extent", "0 " + repr(Nxc) + " 0 " + repr(Nyc) + " " + repr(i*Nzc/numproc) + " " + repr((i+1)*Nzc/numproc))
@@ -137,7 +137,7 @@ def writePVTR(pvtr_name, cycle, vtr_prefix, scalar_fields, vector_fields, Nxc, N
         pvtr.writexml(pvtr_id, newl='\n')                                                                             
         pvtr_id.close()
     except:
-        print 'Error writing PVTR file: ', pvtr_name
+        print('Error writing PVTR file: ', pvtr_name)
 #end writePVTR
 
 
@@ -157,7 +157,7 @@ def writeVTR(vtr_name, scalar_fields, vector_fields, vtkX, vtkY, vtkZ, localZran
     Nz = vtkZ.GetNumberOfTuples() - 1
     numpoints = (Nx+1)*(Ny+1)*(Nz+1)
     rtg = vtk.vtkRectilinearGrid()
-    rtg.SetExtent(0, Nx, 0, Ny, localZrange[0], localZrange[1])
+    rtg.SetExtent(0, Nx, 0, Ny, int(localZrange[0]), int(localZrange[1]))
     rtg.SetXCoordinates(vtkX)
     rtg.SetYCoordinates(vtkY)
     rtg.SetZCoordinates(vtkZ)
@@ -170,7 +170,7 @@ def writeVTR(vtr_name, scalar_fields, vector_fields, vtkX, vtkY, vtkZ, localZran
         array_list.append(scalar_fields[f].swapaxes(0,2).flatten().astype("float32"))
         vtk_data[-1].SetVoidArray(array_list[-1], numpoints, 1)
         vtk_data[-1].SetName(f)
-        if f == scalar_fields.keys()[0]:
+        if f == list(scalar_fields.keys())[0]:
             rtg.GetPointData().SetScalars(vtk_data[-1])
         else:
             rtg.GetPointData().AddArray(vtk_data[-1])
@@ -182,18 +182,18 @@ def writeVTR(vtr_name, scalar_fields, vector_fields, vtkX, vtkY, vtkZ, localZran
         array_list.append(vector_fields[f].swapaxes(0,3).swapaxes(1,2).flatten().astype("float32"))
         vtk_data[-1].SetVoidArray(array_list[-1], numpoints*3, 1)
         vtk_data[-1].SetName(f)
-        if f == vector_fields.keys()[0]:
+        if f == list(vector_fields.keys())[0]:
             rtg.GetPointData().SetVectors(vtk_data[-1])
         else:
             rtg.GetPointData().AddArray(vtk_data[-1])
     #end for
     try:
-        writer = vtk.vtkXMLRectilinearGridWriter()                                                                                              
+        writer = vtk.vtkXMLRectilinearGridWriter()                                                                                    
         writer.SetFileName(vtr_name)
-        writer.SetInput(rtg)
+        writer.SetInputData(rtg)
         writer.Write()
-    except:
-        print 'Error writing VTR file: ', vtr_name
+    except Exception as e:
+        print('Error writing VTR file: ', vtr_name, e)
 #end writeVTR
 
 
@@ -206,10 +206,10 @@ def openProcFile(proc_filename, read_proc0, bounds):
          bounds - oordinates of the edges of the domain saved in the proc file
     """
     try :
-        h5proc_file = tables.openFile(proc_filename, mode = "r", title = "Proc_file")                 
+        h5proc_file = tables.open_file(proc_filename, mode = "r", title = "Proc_file")                 
         p_coordinate = h5proc_file.root.topology.cartesian_coord.read()
     except :
-        print 'Error opening proc file: ', proc_filename
+        print('Error opening proc file: ', proc_filename)
 
     p_coordinate[2] = p_coordinate[2] - read_proc0    
     bounds[0] = p_coordinate[0]*(shape[0]-1) # x_start -1 to account for the 1 node overlapping
@@ -226,9 +226,9 @@ def openProcFile(proc_filename, read_proc0, bounds):
     
 """ Main program starts here """
 rankproc = 0 # Proc rank
-numproc = 1 # Total number of procs
-liste_proc = xrange(numproc)
-if rankproc == 0: start_time = time.clock()    
+numproc = 4 # Total number of procs
+liste_proc = range(numproc)
+if rankproc == 0: start_time = time.perf_counter()    
 
 """ Constants """
 str_fields = 'fields'
@@ -248,9 +248,9 @@ list_cycle = scipy.arange(first_cycle, last_cycle+1, step).tolist()
 bounds = scipy.zeros(6) # local domain bounds: x_start, x_end, y_start, ...
 
 """ Gathering information and initialization """
-if rankproc == 0: print "Reading directory " + directory
+if rankproc == 0: print("Reading directory " + directory)
 setting_filename = directory + "settings.hdf" # Setting file name
-h5setting_file = tables.openFile(setting_filename, mode = "r", title = "Setting_file")
+h5setting_file = tables.open_file(setting_filename, mode = "r", title = "Setting_file")
 Nprocs = h5setting_file.root.topology.Nprocs.read()[0]
 XLEN = h5setting_file.root.topology.XLEN.read()[0]
 YLEN = h5setting_file.root.topology.YLEN.read()[0]
@@ -265,7 +265,7 @@ ns = h5setting_file.root.collective.Ns.read()[0]
 h5setting_file.close()
 # Shape of each individual subdomain. We assume that each processor has domain of the same size!
 shape = (Nxc/XLEN+1, Nyc/YLEN+1, Nzc/ZLEN+1) 
-species = xrange(ns)
+species = range(ns)
 
 Zbyproc = ZLEN/numproc # Minimum Nomber of Z you have to read
 reste = ZLEN - Zbyproc*numproc
@@ -275,13 +275,13 @@ else:
     Zrange = scipy.arange(reste*(Zbyproc+1)+(rankproc-reste)*Zbyproc, reste*(Zbyproc+1)+(rankproc-reste+1)*Zbyproc)
 list_read_proc = []
 for Z in Zrange:
-    list_read_proc.extend(range(Z,Nprocs,ZLEN))
+    list_read_proc.extend(list(range(int(Z),int(Nprocs),int(ZLEN))))
 
 list_read_proc = scipy.array(list_read_proc)
 zread_proc = len(list_read_proc)/(YLEN*XLEN) #Number of proc file you want to read in the z direction
 
 Nzlocal = zread_proc*(shape[2] - 1)
-Fields_local = scipy.zeros((field_comp_count,Nxc+1,Nyc+1,Nzlocal+1), dtype="float32")
+Fields_local = scipy.zeros((int(field_comp_count),int(Nxc+1),int(Nyc+1),int(Nzlocal+1)), dtype="float32")
 numproc = min(numproc, ZLEN) # To account for specific case where more processors are used here than in the Z direction of the simulation
 if len(list_read_proc) > 0:
     numpoints = (Nxc+1)*(Nyc+1)*(Nzlocal+1)
@@ -299,8 +299,8 @@ if len(list_read_proc) > 0:
     vtkYcoordinates.SetVoidArray(Ycoordinates,Nyc+1,1)
     vtkZcoordinates = vtk.vtkFloatArray()
     vtkZcoordinates.SetNumberOfComponents(1)
-    vtkZcoordinates.SetNumberOfTuples(Nzlocal+1)
-    vtkZcoordinates.SetVoidArray(Zcoordinates,Nzlocal+1,1)
+    vtkZcoordinates.SetNumberOfTuples(int(Nzlocal+1))
+    vtkZcoordinates.SetVoidArray(Zcoordinates,int(Nzlocal+1),1)
     list_proc_files = []
     for read_proc in list_read_proc: 
         list_proc_files.append(directory + "proc" + repr(read_proc) + ".hdf")
@@ -312,54 +312,54 @@ if len(list_read_proc) > 0:
             for proc_filename in list_proc_files:
                 h5proc_file = openProcFile(proc_filename, list_read_proc[0], bounds)
                 ## Cycle over field components
-                for c in xrange(field_comp_count):
-                    for node in h5proc_file.walkNodes('/' + str_fields + '/'+ field_comp_names[c]):
+                for c in range(field_comp_count):
+                    for node in h5proc_file.walk_nodes('/' + str_fields + '/'+ field_comp_names[c]):
                         if type(node) == tables.array.Array:
                             num = int(node.name[6:])
                             if num == cycle:
-                                Fields_local[c, bounds[0]:bounds[1], bounds[2]:bounds[3], bounds[4]:bounds[5]] = node.read()
+                                Fields_local[c, int(bounds[0]):int(bounds[1]), int(bounds[2]):int(bounds[3]), int(bounds[4]):int(bounds[5])] = node.read()
                         #end if                                                                                                        
                     #end for                                                                                                           
                 #end for
                 h5proc_file.close()
             #end for
             vector_fields = {}
-            for c in xrange(len(field_vec_names)): 
+            for c in range(len(field_vec_names)): 
                 vector_fields[field_vec_names[c]] = Fields_local[3*c:3*(c+1), :, :, :]
             writeVTR(directory + str_fields + repr(cycle).rjust(8,"0") + "-" + repr(rankproc) + ".vtr", {}, vector_fields,
                      vtkXcoordinates, vtkYcoordinates, vtkZcoordinates, RangeZlocal)
             if rankproc == 0:
                 pvtr_fields_list.append(str_fields + repr(cycle).rjust(8,"0") + ".pvtr")
-                writePVTR(directory + pvtr_fields_list[-1], cycle, str_fields, [], vector_fields.keys(), Nxc, Nyc, Nzc, numproc)
+                writePVTR(directory + pvtr_fields_list[-1], cycle, str_fields, [], list(vector_fields.keys()), Nxc, Nyc, Nzc, numproc)
             #end if
         #end for
         if rankproc == 0:
             writePVD(directory + str_fields + '.pvd', pvtr_fields_list, list_cycle)
-            print 'Fields written'
+            print('Fields written')
         #end if    
     #end if
     """ 2. Rho (Number density) """
     if data_read['Rho']: 
         if rankproc == 0: pvtr_rho_list = []
         for cycle in list_cycle:    
-            Fields_local = scipy.zeros((ns+1,Nxc+1,Nyc+1,Nzlocal+1), dtype="float32")            
+            Fields_local = scipy.zeros((int(ns+1),int(Nxc+1),int(Nyc+1),int(Nzlocal+1)), dtype="float32")            
             for proc_filename in list_proc_files:
                 h5proc_file = openProcFile(proc_filename, list_read_proc[0], bounds)
                 # Read the total density first
-                for node in h5proc_file.walkNodes('/' + str_moments + '/' + str_rho):
+                for node in h5proc_file.walk_nodes('/' + str_moments + '/' + str_rho):
                     if type(node) == tables.array.Array:
                         num = int(node.name[6:])
                         if num == cycle:                    
-                            Fields_local[0, bounds[0]:bounds[1], bounds[2]:bounds[3], bounds[4]:bounds[5]] = node.read()
+                            Fields_local[0, int(bounds[0]):int(bounds[1]), int(bounds[2]):int(bounds[3]), int(bounds[4]):int(bounds[5])] = node.read()
                     #end if
                 #end for                
                 ## Cycle over species for each specie density
                 for specie in species:
-                    for node in h5proc_file.walkNodes('/' + str_moments + '/'+ str_species + str(specie) + '/' + str_rho):
+                    for node in h5proc_file.walk_nodes('/' + str_moments + '/'+ str_species + str(specie) + '/' + str_rho):
                         if type(node) == tables.array.Array:
                             num = int(node.name[6:])
                             if num == cycle:
-                                Fields_local[specie+1, bounds[0]:bounds[1], bounds[2]:bounds[3], bounds[4]:bounds[5]] = node.read()
+                                Fields_local[specie+1, int(bounds[0]):int(bounds[1]), int(bounds[2]):int(bounds[3]), int(bounds[4]):int(bounds[5])] = node.read()
                             #end if
                         #end if
                     #end for
@@ -373,29 +373,29 @@ if len(list_read_proc) > 0:
                      vtkXcoordinates, vtkYcoordinates, vtkZcoordinates, RangeZlocal)
             if rankproc == 0:            
                 pvtr_rho_list.append(str_rho + repr(cycle).rjust(8,"0") + ".pvtr")
-                writePVTR(directory + pvtr_rho_list[-1], cycle, str_rho, rho_fields.keys(), [], Nxc, Nyc, Nzc, numproc)
+                writePVTR(directory + pvtr_rho_list[-1], cycle, str_rho, list(rho_fields.keys()), [], Nxc, Nyc, Nzc, numproc)
             #end if
         #end for
         if rankproc == 0:
             writePVD(directory + str_rho + '.pvd', pvtr_rho_list, list_cycle)
-            print 'Rho written'
+            print('Rho written')
         #end if
     #end if    
     """ 3. Currents """
     if data_read['Currents']:
         if rankproc == 0: pvtr_currents_list = []
         for cycle in list_cycle:    
-            Fields_local = scipy.zeros((ns*3,Nxc+1,Nyc+1,Nzlocal+1), dtype="float32")
+            Fields_local = scipy.zeros((int(ns*3),int(Nxc+1),int(Nyc+1),int(Nzlocal+1)), dtype="float32")
             for proc_filename in list_proc_files:
                 h5proc_file = openProcFile(proc_filename, list_read_proc[0], bounds)
                 ## Cycle over species to get current for each specie
                 for specie in species:
-                    for c in xrange(3):
-                        for node in h5proc_file.walkNodes('/' + str_moments + '/'+ str_species + repr(specie) + '/' + current_comp_names[c]):
+                    for c in range(3):
+                        for node in h5proc_file.walk_nodes('/' + str_moments + '/'+ str_species + repr(specie) + '/' + current_comp_names[c]):
                             if type(node) == tables.array.Array:
                                 num = int(node.name[6:])
                                 if num == cycle:
-                                    Fields_local[specie*3 + c, bounds[0]:bounds[1], bounds[2]:bounds[3], bounds[4]:bounds[5]] = node.read()
+                                    Fields_local[specie*3 + c, int(bounds[0]):int(bounds[1]), int(bounds[2]):int(bounds[3]), int(bounds[4]):int(bounds[5])] = node.read()
                             #end if
                         #end for
                     #end for
@@ -409,28 +409,28 @@ if len(list_read_proc) > 0:
                      vtkXcoordinates, vtkYcoordinates, vtkZcoordinates, RangeZlocal)
             if rankproc == 0:
                 pvtr_currents_list.append(str_currents + repr(cycle).rjust(8,"0")+".pvtr")
-                writePVTR(directory + pvtr_currents_list[-1], cycle, str_currents, [], j_fields.keys(), Nxc, Nyc, Nzc, numproc)
+                writePVTR(directory + pvtr_currents_list[-1], cycle, str_currents, [], list(j_fields.keys()), Nxc, Nyc, Nzc, numproc)
             #end if
         #end for
         if rankproc == 0:
             writePVD(directory + str_currents + '.pvd', pvtr_currents_list, list_cycle)
-            print 'Currents written'
+            print('Currents written')
         #end if
     #end if
     """ 4. Pressure tensor for each specie"""
     if data_read['Pressure']: 
         if rankproc == 0: pvtr_press_list = []
         for cycle in list_cycle:    
-            Fields_local = scipy.zeros((ns*6, Nxc+1, Nyc+1, Nzlocal+1), dtype="float32")            
+            Fields_local = scipy.zeros((int(ns*6), int(Nxc+1), int(Nyc+1), int(Nzlocal+1)), dtype="float32")            
             for proc_filename in list_proc_files:
                 h5proc_file = openProcFile(proc_filename, list_read_proc[0], bounds)
                 for specie in species:
-                    for c in xrange(press_comp_count):
-                        for node in h5proc_file.walkNodes('/' + str_moments + '/'+ str_species + str(specie) + '/' + press_names[c]):
+                    for c in range(press_comp_count):
+                        for node in h5proc_file.walk_nodes('/' + str_moments + '/'+ str_species + str(specie) + '/' + press_names[c]):
                             if type(node) == tables.array.Array:
                                 num = int(node.name[6:])
                                 if num == cycle:
-                                    Fields_local[press_comp_count*specie+c, bounds[0]:bounds[1], bounds[2]:bounds[3], bounds[4]:bounds[5]] = node.read()
+                                    Fields_local[press_comp_count*specie+c, int(bounds[0]):int(bounds[1]), int(bounds[2]):int(bounds[3]), int(bounds[4]):int(bounds[5])] = node.read()
                             #end if
                         #end for
                     #end for
@@ -439,20 +439,20 @@ if len(list_read_proc) > 0:
             #end for
             p_fields = {}
             for specie in species:
-                for c in xrange(press_comp_count):
+                for c in range(press_comp_count):
                     p_fields[press_names[c] + repr(specie)] = Fields_local[press_comp_count*specie+c,:,:,:]
             #end for
             writeVTR(directory + str_pressure + repr(cycle).rjust(8,"0") + "-" + repr(rankproc) + ".vtr", p_fields, {}, 
                      vtkXcoordinates, vtkYcoordinates, vtkZcoordinates, RangeZlocal)
             if rankproc == 0:            
                 pvtr_press_list.append(str_pressure + repr(cycle).rjust(8,"0") + ".pvtr")
-                writePVTR(directory + pvtr_press_list[-1], cycle, str_pressure, p_fields.keys(), [], Nxc, Nyc, Nzc, numproc)
+                writePVTR(directory + pvtr_press_list[-1], cycle, str_pressure, list(p_fields.keys()), [], Nxc, Nyc, Nzc, numproc)
             #end if
         #end for
         if rankproc == 0:
             writePVD(directory + str_pressure + '.pvd', pvtr_press_list, list_cycle)
-            print 'Pressure written'
+            print('Pressure written')
         #end if
     #end if
 #end if
-if rankproc == 0: print 'Time elapsed: ', time.clock() - start_time
+if rankproc == 0: print('Time elapsed: ', time.perf_counter() - start_time)

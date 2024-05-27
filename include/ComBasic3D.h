@@ -7,17 +7,15 @@
 #define ComBasic_H
 
 #include "MPIdata.h"
+#include "mpi.h"
 #include "ComParser3D.h"
 
 
 /** communicate particles along a direction **/
-void communicateParticlesDIR(int buffer_size, int myrank, int right_neighbor, int left_neighbor, int DIR, int XLEN, int YLEN, int ZLEN, double *b_right, double *b_left);
+void communicateParticlesDIR(MPI_Comm comm, int buffer_size, int myrank, int right_neighbor, int left_neighbor, int DIR, int XLEN, int YLEN, int ZLEN, double *b_right, double *b_left);
 
 /** communicate ghost along a direction **/
-void communicateGhostFace(int b_len, int myrank, int right_neighbor, int left_neighbor, int DIR, int XLEN, int YLEN, int ZLEN, double *ghostRightFace, double *ghostLeftFace);
-
-/** communicate ghost along a direction **/
-void communicateGhostFace(int b_len, int myrank, int right_neighbor, int left_neighbor, int DIR, int XLEN, int YLEN, int ZLEN, double *ghostRightFace, double *ghostLeftFace);
+void communicateGhostFace(MPI_Comm comm, int b_len, int myrank, int right_neighbor, int left_neighbor, int DIR, int XLEN, int YLEN, int ZLEN, double *ghostRightFace, double *ghostLeftFace);
 
 /** communicate ghost edge along a direction; there are 6 Diagonal directions through which we exchange Ghost Edges :
   0 = from   XrightYrightZsame to YleftZleftZsame; we exchange Z edge

@@ -81,5 +81,7 @@ public:
   virtual bool getcVERBOSE() = 0;
   /** get the MPI communicator */
   virtual inline MPI_Comm getComm() = 0;
+
+  virtual inline MPI_Comm getComm_P() = 0;
 };
 #endif

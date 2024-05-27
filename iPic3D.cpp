@@ -1,5 +1,6 @@
 
 #include <iomanip>
+#include <signal.h>
 #include "iPic3D.h"
 #include "MyClock.h"
 
@@ -25,6 +26,8 @@ int main(int argc, char **argv) {
   /* ------------ */
 
   for (int i = KCode.FirstCycle(); i <= KCode.LastCycle(); i++) {
+    if(i == 280 && KCode.get_myrank() == 12)
+      raise(SIGINT);
 
     if (KCode.get_myrank() == 0) cout << " ======= Cycle " << i << " ======= " << endl;
 

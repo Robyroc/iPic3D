@@ -1609,14 +1609,14 @@ int Particles3D::mover_PC(Grid * grid, VirtualTopology3D * vct, Field * EMf) {
 	const int avail = communicate(vct);
 	if (avail < 0)
 		return (-1);
-	MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Barrier(vct->getComm_P());
 	// communicate again if particles are not in the correct domain
 	while (isMessagingDone(vct) > 0) {
 		// COMMUNICATION
 		const int avail = communicate(vct);
 		if (avail < 0)
 			return (-1);
-		MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Barrier(vct->getComm_P());
 	}
 	// timeTasks.addto_communicate();
 	return (0);                   // exit succcesfully (hopefully)

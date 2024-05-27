@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.15.0)
 
 #
 # Set project name
@@ -12,6 +12,7 @@ project(iPic3D)
 
 find_package(HDF5 COMPONENTS HL C REQUIRED)
 find_package(MPI REQUIRED)
+find_package(legio REQUIRED)
 
 # Find PETSc
 #
@@ -62,6 +63,7 @@ add_executable(
 target_link_libraries(
     iPic3D
     iPic3Dlib
+    legio::legio
     ${MPI_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}

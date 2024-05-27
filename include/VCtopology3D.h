@@ -66,29 +66,77 @@ public:
   /** get the total number of process */
   int getNproc() {return(nproc);};
   /** get the cartesian rank of XLEFT neighbor */
-  int getXleft_neighbor() {return(xleft_neighbor);};
+  int getXleft_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, XDIR, RIGHT, &xleft_neighbor, &xright_neighbor);
+    return(xleft_neighbor);
+  };
   /** get the cartesian rank of XRIGHT neighbor */
-  int getXright_neighbor() {return(xright_neighbor);};
+  int getXright_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, XDIR, RIGHT, &xleft_neighbor, &xright_neighbor);
+    return(xright_neighbor);
+  };
   /** get the cartesian rank of YLEFT neighbor */
-  int getYleft_neighbor() {return(yleft_neighbor);};
+  int getYleft_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, YDIR, RIGHT, &yleft_neighbor, &yright_neighbor);
+    return(yleft_neighbor);
+  };
   /** get the cartesian rank of YRIGHT neighbor */
-  int getYright_neighbor() {return(yright_neighbor);};
+  int getYright_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, YDIR, RIGHT, &yleft_neighbor, &yright_neighbor);
+    return(yright_neighbor);
+  };
   /** get the cartesian rank of ZLEFT neighbor */
-  int getZleft_neighbor() {return(zleft_neighbor);};
+  int getZleft_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, ZDIR, RIGHT, &zleft_neighbor, &zright_neighbor);
+    return(zleft_neighbor);
+  };
   /** get the cartesian rank of ZRIGHT neighbor */
-  int getZright_neighbor() {return(zright_neighbor);};
+  int getZright_neighbor() {
+    if(CART_COMM != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM, ZDIR, RIGHT, &zleft_neighbor, &zright_neighbor);
+    return(zright_neighbor);
+  };
   /** get the cartesian rank of XLEFT neighbor */
-  int getXleft_neighbor_P() {return(xleft_neighbor_P);};
+  int getXleft_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, XDIR, RIGHT, &xleft_neighbor_P, &xright_neighbor_P);
+    return(xleft_neighbor_P);
+  };
   /** get the cartesian rank of XRIGHT neighbor */
-  int getXright_neighbor_P() {return(xright_neighbor_P);};
+  int getXright_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, XDIR, RIGHT, &xleft_neighbor_P, &xright_neighbor_P);
+    return(xright_neighbor_P);
+  };
   /** get the cartesian rank of YLEFT neighbor */
-  int getYleft_neighbor_P() {return(yleft_neighbor_P);};
+  int getYleft_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, YDIR, RIGHT, &yleft_neighbor_P, &yright_neighbor_P);
+    return(yleft_neighbor_P);
+  };
   /** get the cartesian rank of YRIGHT neighbor */
-  int getYright_neighbor_P() {return(yright_neighbor_P);};
+  int getYright_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, YDIR, RIGHT, &yleft_neighbor_P, &yright_neighbor_P);
+    return(yright_neighbor_P);
+  };
   /** get the cartesian rank of ZLEFT neighbor */
-  int getZleft_neighbor_P() {return(zleft_neighbor_P);};
+  int getZleft_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, ZDIR, RIGHT, &zleft_neighbor_P, &zright_neighbor_P);
+    return(zleft_neighbor_P);
+  };
   /** get the cartesian rank of ZRIGHT neighbor */
-  int getZright_neighbor_P() {return(zright_neighbor_P);};
+  int getZright_neighbor_P() {
+    if (CART_COMM_P != MPI_COMM_NULL)
+      MPI_Cart_shift(CART_COMM_P, ZDIR, RIGHT, &zleft_neighbor_P, &zright_neighbor_P);
+    return(zright_neighbor_P);
+  };
   /** get the coordinates in dir direction of process*/
   int getCoordinates(int dir) {return(coordinates[dir]);};
   /** get the coordinates of process*/
@@ -101,6 +149,8 @@ public:
   bool getcVERBOSE() {return(cVERBOSE);};
   /** get the MPI communicator */
   MPI_Comm getComm() {return(CART_COMM);};
+
+  MPI_Comm getComm_P() {return(CART_COMM_P);}
 
 private:
   /** New communicator with virtual cartesian topology */

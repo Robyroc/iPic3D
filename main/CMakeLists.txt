@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.15.0)
 
 #
 # Project declaration
@@ -19,6 +19,7 @@ set(IPIC_HOME ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 find_package(HDF5 COMPONENTS HL C REQUIRED)
 find_package(MPI REQUIRED)
+find_package(legio REQUIRED)
 
 #
 # Header file list
@@ -126,6 +127,7 @@ add_library(
 
 target_link_libraries(
          iPic3Dlib
+         legio::legio
          ${H5HUTIO_LIBRARIES}
          ${PETSC_LIBRARIES}
 )
