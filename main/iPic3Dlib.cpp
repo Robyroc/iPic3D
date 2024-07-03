@@ -88,6 +88,7 @@ int c_Solver::Init(int argc, char **argv) {
     /* If using 'default' IO initialize fields depending on case */
     /* --------------------------------------------------------- */
     if      (col->getCase()=="GEMnoPert") EMf->initGEMnoPert(vct,grid,col);
+    else if (col->getCase()=="DoubleGEM") EMf->initDoubleGEMasECsim(vct,grid,col);
     else if (col->getCase()=="ForceFree") EMf->initForceFree(vct,grid,col);
     else if (col->getCase()=="ForceFreeHump") EMf->initForceFreeWithGaussianHumpPerturbation(vct,grid,col);
     else if ((col->getCase()=="GEM") || (col->getCase()=="GEMRelativity"))  EMf->initGEM(vct, grid,col);
@@ -149,11 +150,12 @@ int c_Solver::Init(int argc, char **argv) {
       // wave = new Planewave(col, EMf, grid, vct);
       // wave->Wave_Rotated(part); // Single Plane Wave
 
-    	cout << col->getCase() << endl;
+//cout << col->getCase() << endl;
 
       for (int i = 0; i < ns; i++)
         if      (col->getCase()=="ForceFree") part[i].force_free(grid,EMf,vct);
-        else if (col->getCase()=="BATSRUS")   part[i].MaxwellianFromFluid(grid,EMf,vct,col,i);
+	else if (col->getCase()=="DoubleGEM") part[i].maxwellian_reversed(grid, EMf, vct); //part[i].MaxwellianDoubleGEMasECsim(grid,EMf,vct);
+	else if (col->getCase()=="BATSRUS")   part[i].MaxwellianFromFluid(grid,EMf,vct,col,i);
         else if (col->getCase()=="DoubleHarris")    part[i].maxwellian_reversed(grid, EMf, vct);
         else if (col->getCase()=="KAWTurbulencePert") {
           double mime = fabs(col->getQOM(0)/col->getQOM(1));
@@ -566,12 +568,12 @@ void c_Solver::WriteOutput(int cycle) {
     /* -------------------------------------------- */
     /* Parallel HDF5 output using the H5hut library */
     /* -------------------------------------------- */
-
-    if (cycle%(col->getFieldOutputCycle())==0)        WriteFieldsH5hut(ns, grid, EMf,  col, vct, cycle);
-    //if (cycle%(col->getParticlesOutputCycle())==0 &&
-    //    cycle!=col->getLast_cycle() && cycle!=0)      WritePartclH5hut(ns, grid, part, col, vct, cycle);
-    if (cycle%(col->getParticlesOutputCycle())==0)      WritePartclH5hut(ns, grid, part, col, vct, cycle);
-
+    if (col->getFieldOutputCycle() != 0){
+       if (cycle == first_cycle || cycle%(col->getFieldOutputCycle())==0)        WriteFieldsH5hut(ns, grid, EMf,  col, vct, cycle);
+    }
+    if (col->getParticlesOutputCycle() != 0){   
+       if (cycle == first_cycle || cycle%(col->getParticlesOutputCycle())==0)      WritePartclH5hut(ns, grid, part, col, vct, cycle);
+    }
   }
   else
   {

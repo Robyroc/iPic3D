@@ -45,6 +45,16 @@ using std::endl;
  *
  */
 
+/**
+ *  Auxiliar routine for random numbers (thread-safe)
+ */
+inline double Drand48(long long& s)
+{
+  s = (((long long) 0x5deece66d)*s + ((long long) 0xb))
+        &((long long) 0xffffffffffff);
+  return ((double) s)/((double) (0x1000000000000));
+}
+
 /** constructor */
 Particles3D::Particles3D() {
   // see allocate(int species, Collective* col, VirtualTopology3D* vct, Grid* grid)
@@ -302,6 +312,12 @@ void Particles3D::maxwellian_reversed(Grid * grid, Field * EMf, VirtualTopology3
   double reverser;
   double prob, theta, sign;
   long long counter = 0;
+  if (vct->getCartesian_rank() == 0) {
+      cout << "----------------------------------------" << endl;
+      cout << "Initialize DOUBLE GEM species" << endl;
+      cout << "maxwellian_reversed" << endl;
+      cout << "----------------------------------------" << endl;
+  }
   for (int i = 1; i < grid->getNXC() - 1; i++)
     for (int j = 1; j < grid->getNYC() - 1; j++)
       for (int k = 1; k < grid->getNZC() - 1; k++)
@@ -683,6 +699,63 @@ void Particles3D::force_free(Grid * grid, Field * EMf, VirtualTopology3D * vct) 
               if (TrackParticleID)
                 ParticleID[counter] = counter * (unsigned long) pow(10.0, BirthRank[1]) + BirthRank[0];
 
+              counter++;
+            }
+
+}
+
+/** Maxellian random velocity and uniform spatial distribution, goes with Double GEM */
+void Particles3D::MaxwellianDoubleGEMasECsim(Grid * grid, Field * EMf, VirtualTopology3D * vct) {
+
+  const double coarsedy= grid->getDY();
+  double globaly;
+  double shaperz;
+
+  double prob, theta, sign;
+  long long counter = 0;
+  if (vct->getCartesian_rank() == 0) {
+      cout << "----------------------------------------" << endl;
+      cout << "Initialize DOUBLE GEM species" << endl;
+      cout << "as in ECsim" << endl;
+      cout << "----------------------------------------" << endl;
+  }
+  for (int i = 1; i < grid->getNXC() - 1; i++)
+    for (int j = 1; j < grid->getNYC() - 1; j++)
+      for (int k = 1; k < grid->getNZC() - 1; k++)
+        for (int ii = 0; ii < npcelx; ii++)
+          for (int jj = 0; jj < npcely; jj++)
+            for (int kk = 0; kk < npcelz; kk++) {
+
+              globaly= grid->getYN(i,j,k)+ coarsedy;
+              shaperz= -tanh((globaly - Ly/2)/delta) ;
+
+              x[counter] = (ii + .5) * (dx / npcelx) + grid->getXN(i, j, k);
+              y[counter] = (jj + .5) * (dy / npcely) + grid->getYN(i, j, k);
+              z[counter] = (kk + .5) * (dz / npcelz) + grid->getZN(i, j, k);
+              // q = charge
+              q[counter] = (qom / fabs(qom)) * (fabs(EMf->getRHOcs(i, j, k, ns)) / npcel) * (1.0 / grid->getInvVOL());
+             
+              int rank; 
+              MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+              long long seed = (rank+1)*20 + ns;
+              //long long seed = (rank+1)*20 + ns +time(NULL);
+              srand(seed);
+              srand48(seed);
+
+              // u
+              prob = sqrt(-2.0 * log(1.0 - .999999 * Drand48(seed)));
+              theta = 2.0 * M_PI * Drand48(seed);
+              u[counter] = u0 + uth * prob * cos(theta);
+              // v
+              v[counter] = v0 + vth * prob * sin(theta);
+              // w
+              prob = sqrt(-2.0 * log(1.0 - .999999 * Drand48(seed)));
+              theta = 2.0 * M_PI * Drand48(seed);
+              w[counter] = w0*shaperz + wth * prob * cos(theta);
+              if (TrackParticleID) {
+                  ParticleID[counter] = counter * (unsigned long) pow(10.0, BirthRank[1]) + BirthRank[0];          
+
+              }
               counter++;
             }
 
