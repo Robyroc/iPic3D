@@ -20,12 +20,13 @@ int main(int argc, char **argv) {
   KCode.Init(argc, argv);
   KCode.InjectBoundaryParticles();
   KCode.GatherMoments();
+  KCode.WriteOutput(KCode.FirstCycle());
 
   /* ------------ */
   /* 1- Main loop */
   /* ------------ */
 
-  for (int i = KCode.FirstCycle(); i <= KCode.LastCycle(); i++) {
+  for (int i = KCode.FirstCycle()+1; i <= KCode.LastCycle(); i++) {
     if(i == 280 && KCode.get_myrank() == 12)
       raise(SIGINT);
 
@@ -63,7 +64,7 @@ int main(int argc, char **argv) {
     KCode.WriteRestart(i);
     clocks->stop(4);
 
-    if (i == 0 || i%(10)==0) {
+/*    if (i == 0 || i%(10)==0) {
 
         	if (KCode.get_myrank() == 0) {
         	    std::cout << "################################################" << std::endl
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
         	            << "**************************************************" << std::endl;
         	  }
       }
-
+*/
   }
 
 int myrank;

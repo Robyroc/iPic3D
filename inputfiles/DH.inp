@@ -137,8 +137,8 @@ NiterMover             = 3        # mover predictor corrector iteration
 FieldOutputCycle       = 10       # Output for field
 ParticlesOutputCycle   = 1000     # Output for particles if 1 it doesnt save particles data
 RestartOutputCycle     = 4000     # restart cycle
-DiagnosticsOutputCycle = 1        # Diagnostics cycle
+DiagnosticsOutputCycle = 10        # Diagnostics cycle
 POISStol	       = 1E-6
-VirtualProbesOutputCycle = 1	  # Virtual probe output (0 =never)
+VirtualProbesOutputCycle = 0	  # Virtual probe output (0 =never)
 NiterGMRES 	       = 500
 SymmetricParticles     = true
