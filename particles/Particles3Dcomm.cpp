@@ -578,9 +578,15 @@ struct cell {
   double f,g,h;
 };
 
+/*
 struct direction {
   int parent[3];
 };
+*/
+
+char* directions = NULL; //0 undefined, 1 x-, 2 x+, 3 y-, 4 y+, 5 z-, 6 z+, 10 use greedy
+#define DIRECTIONS(x,y,z) directions[z+(z_size*y)+(y_size*z_size*x)] 
+std::unordered_set<int> faults({});
 
 /** communicate buffers */
 int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
@@ -606,16 +612,6 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
   int size;
   int *vals;
 
-  fault_number(comm, &size);
-  if(size) {
-    vals = (int*) malloc(sizeof(int) * size);
-    who_failed(comm, &size, vals);
-  }
-  std::unordered_set<int> faults;
-  for(int i = 0; i < size; i++)
-    faults.insert(vals[i]);
-  if(size)
-    free(vals);
   double x_delta = xend - xstart;
   double y_delta = yend - ystart;
   double z_delta = zend - zstart;
@@ -624,8 +620,23 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
   int z_size = Lz / z_delta;
   int* own_coords;
   own_coords = ptVCT->getCoordinates();
-  direction directions[x_size][y_size][z_size];
-  memset(directions, -1, sizeof(directions));
+  if (!directions)
+  {
+    directions = (char*) malloc(sizeof(char) * x_size * y_size * z_size);
+    memset(directions, 0, x_size * y_size * z_size);
+    DIRECTIONS(own_coords[0], own_coords[1], own_coords[2]) = 10;
+  }
+  fault_number(comm, &size);
+  if(size != faults.size()) {
+    vals = (int*) malloc(sizeof(int) * size);
+    who_failed(comm, &size, vals);
+    for(int i = 0; i < size; i++)
+      faults.insert(vals[i]);
+    if(size)
+      free(vals);
+    memset(directions, 0, x_size * y_size * z_size);
+    DIRECTIONS(own_coords[0], own_coords[1], own_coords[2]) = 10;
+  }
 
   while (np_current < nplast+1){
     // BC on particles
@@ -653,28 +664,30 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
     if(y[np_current] > Ly) target_coords[1] = y_size - 1;
     if(z[np_current] < 0) target_coords[2] = 0;
     if(z[np_current] > Lz) target_coords[2] = z_size - 1;
-    bool target_dead = false, found = false;
-    if(!faults.empty()) {
+    bool found = false;
+    if(faults.empty())
+      DIRECTIONS(target_coords[0],target_coords[1],target_coords[2]) = 10;
+    if(!DIRECTIONS(target_coords[0],target_coords[1],target_coords[2])) {
+    //if(!faults.empty()) {
       int rank_target;
       MPI_Cart_rank(comm, target_coords, &rank_target);
       auto point = local_faults.find(rank_target);
       if(point != local_faults.end()) {
-        target_dead = true;
         local_faults.erase(point);
       }
-      for(int i = (target_coords[0] > own_coords[0] ? own_coords[0] : target_coords[0]); !found && !local_faults.empty() && i <= (target_coords[0] < own_coords[0] ? own_coords[0] : target_coords[0]); i++)
-        for(int j = (target_coords[1] > own_coords[1] ? own_coords[1] : target_coords[1]); !found && !local_faults.empty() && j <= (target_coords[1] < own_coords[1] ? own_coords[1] : target_coords[1]); j++)
-          for(int k = (target_coords[2] > own_coords[2] ? own_coords[2] : target_coords[2]); !found && !local_faults.empty() && k <= (target_coords[2] < own_coords[2] ? own_coords[2] : target_coords[2]); k++) {
-            int rank, coord[3];
-            coord[0] = i;
-            coord[1] = j;
-            coord[2] = k;
-            MPI_Cart_rank(comm, coord, &rank);
-            if(local_faults.find(rank) != local_faults.end())
-              found = true;
-          }
+      for(auto fault : local_faults) {
+        int coords[3];
+        MPI_Cart_coords(comm, fault, 3, coords);
+        if(coords[0] < (target_coords[0] > own_coords[0] ? own_coords[0] : target_coords[0]) || coords[0] > (target_coords[0] < own_coords[0] ? own_coords[0] : target_coords[0])) continue;
+        if(coords[1] < (target_coords[1] > own_coords[1] ? own_coords[1] : target_coords[1]) || coords[1] > (target_coords[1] < own_coords[1] ? own_coords[1] : target_coords[1])) continue;
+        if(coords[2] < (target_coords[2] > own_coords[2] ? own_coords[2] : target_coords[2]) || coords[2] > (target_coords[2] < own_coords[2] ? own_coords[2] : target_coords[2])) continue;
+        found = true;
+        break;
+      }
+      if(!found)
+        DIRECTIONS(target_coords[0],target_coords[1],target_coords[2]) = 10;
     }
-    if(!found) {
+    if(DIRECTIONS(target_coords[0],target_coords[1],target_coords[2]) == 10) {
       // if the particle exits, apply the boundary conditions add the particle to communication buffer
       if (x[np_current] < xstart || x[np_current] >xend){
         // communicate if they don't belong to the domain
@@ -788,78 +801,91 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
         np_current++;
       }
     }
-    else if (directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[0] != -1)
+    else if (DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]))
     {
+      int target = DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]);
       int current[3];
-      current[0] = directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[0];
-      current[1] = directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[1];
-      current[2] = directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[2];
+      memcpy(current, own_coords, sizeof(own_coords));
+      switch(target) {
+        case 1: {
+          if(((npExitXleft+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
+          resize_buffers((int) (buffer_size*2)); 
+            resize_buffers((int) (buffer_size*2)); 
+          }
+          // put it in the communication buffer
+          bufferXleft(b_X_LEFT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
+          npExitXleft++;
+        }; break;
 
-      if(current[0] < own_coords[0]) {
-        if(((npExitXleft+1)*nVar)>=buffer_size){
+        case 2: {
+          if(((npExitXright+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
           resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferXleft(b_X_LEFT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
-        npExitXleft++;
-      }
-      else if(current[0] > own_coords[0]) {
-        if(((npExitXright+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
+          }
+          // put it in the communication buffer
+          bufferXright(b_X_RIGHT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
+          npExitXright++;
+        }; break;
+      
+        case 3: {
+          if(((npExitYleft+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
           resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferXright(b_X_RIGHT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
-        npExitXright++;
-      }
-      else if(current[1] < own_coords[1]) {
-        if(((npExitYleft+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
+          }
+          // put it in the communication buffer
+          bufferYleft(b_Y_LEFT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
+          npExitYleft++;
+        }; break;
+      
+        case 4: {
+          if(((npExitYright+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
           resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferYleft(b_Y_LEFT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
-        npExitYleft++;
-      }
-      else if(current[1] > own_coords[1]) {
-        if(((npExitYright+1)*nVar)>=buffer_size){
-          resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferYright(b_Y_RIGHT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
-        npExitYright++;
-      }
-      else if(current[2] < own_coords[2]) {
+            resize_buffers((int) (buffer_size*2)); 
+          }
+          // put it in the communication buffer
+          bufferYright(b_Y_RIGHT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
+          npExitYright++;
+        }; break;
+        case 5: {
           if(((npExitZleft+1)*nVar)>=buffer_size){
           resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferZleft(b_Z_LEFT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
+          }
+          // put it in the communication buffer
+          bufferZleft(b_Z_LEFT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
 
-        npExitZleft++;
-      }
-      else if(current[2] > own_coords[2]) {
-        if(((npExitZright+1)*nVar)>=buffer_size){
+          npExitZleft++;
+        }; break;
+        case 6: {
+          if(((npExitZright+1)*nVar)>=buffer_size){
+            resize_buffers((int) (buffer_size*2)); 
           resize_buffers((int) (buffer_size*2)); 
-        }
-        // put it in the communication buffer
-        bufferZright(b_Z_RIGHT,np_current,ptVCT);
-        // delete the particle and pack the particle array, the value of nplast changes
-        del_pack(np_current,&nplast);
+            resize_buffers((int) (buffer_size*2)); 
+          }
+          // put it in the communication buffer
+          bufferZright(b_Z_RIGHT,np_current,ptVCT);
+          // delete the particle and pack the particle array, the value of nplast changes
+          del_pack(np_current,&nplast);
 
-        npExitZright++;
-      }
-      else {
-        printf("ERROR, this shouldn't have happened...\n");
-        np_current++;
+          npExitZright++;
+        }; break;
+        default: {
+          printf("ERROR, this shouldn't have happened...\n");
+          np_current++;
+        }
       }
     }
     else {
@@ -965,12 +991,9 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           memcpy(current, previous, sizeof(previous));
           memcpy(previous, cells[current[0]][current[1]][current[2]].parent, sizeof(previous));
         }
-        directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[0] = current[0];
-        directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[1] = current[1];
-        directions[target_coords[0]][target_coords[1]][target_coords[2]].parent[2] = current[2];
-
 
         if(current[0] < own_coords[0]) {
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 1;
           if(((npExitXleft+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
@@ -981,6 +1004,7 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           npExitXleft++;
         }
         else if(current[0] > own_coords[0]) {
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 2;
           if(((npExitXright+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
@@ -991,6 +1015,7 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           npExitXright++;
         }
         else if(current[1] < own_coords[1]) {
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 3;
           if(((npExitYleft+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
@@ -1001,6 +1026,7 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           npExitYleft++;
         }
         else if(current[1] > own_coords[1]) {
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 4;
           if(((npExitYright+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
@@ -1011,7 +1037,8 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           npExitYright++;
         }
         else if(current[2] < own_coords[2]) {
-           if(((npExitZleft+1)*nVar)>=buffer_size){
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 5;
+          if(((npExitZleft+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
           // put it in the communication buffer
@@ -1022,6 +1049,7 @@ int Particles3Dcomm::communicate(VirtualTopology3D * ptVCT) {
           npExitZleft++;
         }
         else if(current[2] > own_coords[2]) {
+          DIRECTIONS(target_coords[0], target_coords[1], target_coords[2]) = 6;
           if(((npExitZright+1)*nVar)>=buffer_size){
             resize_buffers((int) (buffer_size*2)); 
           }
